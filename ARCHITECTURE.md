@@ -8,8 +8,8 @@
 
 ```
 ┌──────────────────┐
-│   传输层          │  Gateway — CLI / HTTP / 飞书 ...
-│   谁在说话        │
+│   传输层          │  Gateway — CLI / HTTP
+│   谁在说话        │  (飞书 Gateway 规划中)
 ├──────────────────┤
 │   会话层          │  Room — 排队、举手、发言、@mention
 │   谁在等、谁在说  │
@@ -33,14 +33,18 @@ CodeTeam 全剥离了。路由就是路由，Agent 就是 Agent。
 
 ```python
 class AgentBackend(ABC):
-    def act(self, instruction: str) -> str       # 执行指令，返回回复
-    def decide(self, context: str) -> bool        # 轻量决策：要不要发言
-    def get_system_prompt(self) -> str            # 系统提示
-    def to_dict(self) -> dict                     # 序列化
-    @classmethod from_dict(cls, data, **kwargs)   # 反序列化
+    def act(self, instruction: str) -> str          # [必] 执行指令，返回回复
+    def decide(self, context: str) -> bool           # [选] 轻量决策，默认 True（举手）
+    def get_system_prompt(self) -> str               # [必] 系统提示
+    def to_dict(self) -> dict                        # [必] 序列化
+
+    @classmethod
+    def from_dict(cls, data, **kwargs) -> AgentBackend:  # [必] 反序列化
 ```
 
-只需要实现这 5 个方法，你的 Agent 就能接入 Room。
+标注说明：
+- **[必]** = `@abstractmethod`，必须实现
+- **[选]** = 有默认实现，按需覆盖
 
 ## 文件职责
 
